@@ -19,11 +19,10 @@ app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 def index():
     # db_sess = db_session.create_session()
     # jobs = db_sess.query(Jobs)
-    # return render_template("index.html", title="Главная", jobs=jobs, db_sess=db_sess, User=User)
-    pass
+    return render_template("index.html", title="GalaxyTest")
+
 
 
 if __name__ == '__main__':
     # db_session.global_init("db/mars_explorer.db")
-    # app.run(host="127.0.0.1", port=8081, debug=True)
-    pass
+    app.run(host="127.0.0.1", port=8081, debug=True)

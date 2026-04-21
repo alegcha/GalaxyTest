@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Hello!!!</h1>
+{% for item in jobs %}
+<div class="col-md6 border rounded">
+  <table class="table">
+      <a>Action #{{ item.id }}</a>
+  <thead>
+    <tr>
+      <th scope="col">Title of activity</th>
+      <th scope="col">Team leader</th>
+      <th scope="col">Duration</th>
+      <th scope="col">List of collaboration</th>
+      <th scope="col">Is finished</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">{{ item.job }}</th>
+        {% set leader = db_sess.query(User).filter(User.id == item.team_leader).first()%}
+      <td>{{ leader.surname }} {{ leader.name }}</td>
+      <td>{{ item.work_size }} hours</td>
+      <td>{{ item.collaborators }}</td>
+        {% if item.is_finished %}
+      <td>is finished</td>
+        {% else %}
+      <td>is not finished</td>
+        {% endif %}
+    </tr>
+  </tbody>
+</table>
+</div>
+{% endfor %}
+{% endblock %}
