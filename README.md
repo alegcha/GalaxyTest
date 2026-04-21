@@ -13,4 +13,4 @@
 чего может пройти тест
 на их знание или пройти просмотр всех карточек 1 темы.
 
-
+Структура базы данных: https://www.figma.com/board/vQAFtUXvc23XkXBNWMajjW/GalaxyTest?node-id=0-1&t=8xmNrDtw31wnLn0N-1
