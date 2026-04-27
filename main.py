@@ -1,9 +1,16 @@
 from flask import Flask, url_for, render_template, redirect, request, make_response, session, jsonify
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-from forms.loginform import LoginForm
+from forms.login_form import LoginForm
 from forms.user import RegisterForm
+from forms.quiz_form import QuizForm
+from forms.question_form import QuestionForm
+
 from data.users import User
+from data.quizzes.quizzes import Quiz
+from data.quizzes.questions import Question
+from data.quizzes.answers import Answer
+
 from data import db_session
 import secrets
 
@@ -49,6 +56,37 @@ def reqister():
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/create_quiz', methods=['GET', 'POST'])
+@login_required
+def create_quiz():
+    form = QuizForm()
+    quest_form = QuestionForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        quiz = Quiz(title=form.title.data, description=form.description.data, user_id=current_user.id)
+        db_sess.add(quiz)
+        db_sess.commit()
+        return redirect(f'/create_quiz/create_questions/{quiz.id}')
+
+    return render_template('create_quiz.html', form=form)
+
+
+@app.route('/create_quiz/create_questions/<int:quiz_id>', methods=['GET', 'POST'])
+@login_required
+def create_questions(quiz_id):
+    form = QuestionForm()
+    db_sess = db_session.create_session()
+    quiz_title = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first().title
+    if form.validate_on_submit():
+
+        quest = Question(content=form.content.data, quiz_id=quiz_id)
+        db_sess.add(quest)
+        db_sess.commit()
+        return redirect(f'/create_quiz/create_questions/{quiz_id}/create_answers/{quest.id}')
+
+    return render_template('create_questions.html', quest_form=form, quiz_title=quiz_title)
 
 
 @app.route('/login', methods=['GET', 'POST'])

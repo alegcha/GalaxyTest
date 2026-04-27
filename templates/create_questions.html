@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ quiz_title }}</h1>
+<form action="" method="post">
+    {{ quest_form.hidden_tag() }}
+    <p>
+        {{ quest_form.content.label }}<br>
+        {{ quest_form.content(class="form-control") }}<br>
+        {% for error in quest_form.content.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ quest_form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+
+</form>
+{% endblock %}
