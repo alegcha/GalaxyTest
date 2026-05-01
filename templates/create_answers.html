@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ quiz_title }}</h1>
+
+<h2>Вопрос: {{ question_title }}</h2>
+
+<h3>Добавленные ответы:</h3>
+<ul>
+    {% for answer in answers %}
+    <li>{{ answer.text }} {% if answer.status %}✅ (Верный){% else %}❌ (Неверный){% endif %}</li>
+    {% else %}
+    <li><i>Пока нет ответов</i></li>
+    {% endfor %}
+</ul>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.text.label }}<br>
+        {{ form.text(class="form-control", size=40) }}<br>
+        {% for error in form.text.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ form.status.label }}<br>
+        {% for subfield in form.status %}
+        {{ subfield }} {{ subfield.label }}
+        {% endfor %}
+    </p>
+    {{ form.add_answer(type="submit", class="btn btn-primary") }}
+    {{ form.finish_question(type="submit", class="btn btn-primary") }}
+    {{message}}
+</form>
+{% endblock %}

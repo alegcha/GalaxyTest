@@ -7,7 +7,7 @@
     {{ form.hidden_tag() }}
     <p>
         {{ form.title.label }}<br>
-        {{ form.title(class="form-control") }}<br>
+        {{ form.title(class="form-control", size=32) }}<br>
         {% for error in form.title.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
@@ -16,18 +16,16 @@
     </p>
     <p>
         {{ form.description.label }}<br>
-        {{ form.description(class="form-control") }}<br>
+        {{ form.description(class="form-control", rows=4, cols=32) }}<br>
         {% for error in form.description.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
     {% endfor %}
     </p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>{{ form.next_step(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 
 </form>
 
 {% endblock %}
-<!--вопросы-->
-{% block question %}{% endblock %}
