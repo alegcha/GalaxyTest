@@ -7,7 +7,11 @@
 <h3>Структура квиза:</h3>
 {% for q in questions %}
 <div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">
-    <h4>{{ q.content }}</h4>
+    <p>{{ q.content }}</p>
+</div>
+{% else %}
+<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">
+    <p>Пока нет вопросов</p>
 </div>
 {% endfor %}
 

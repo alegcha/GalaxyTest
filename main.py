@@ -60,6 +60,7 @@ def reqister():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
+
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -73,7 +74,6 @@ def create_quiz():
         db_sess.add(quiz)
         db_sess.commit()
         return redirect(f'/quiz/{quiz.id}/review')
-
     return render_template('create_quiz.html', form=form)
 
 
@@ -89,7 +89,6 @@ def create_questions(quiz_id):
         db_sess.add(quest)
         db_sess.commit()
         return redirect(f'/quiz/{quiz_id}/question/{quest.id}/answer/create')
-
     return render_template('create_questions.html', form=form, quiz_title=quiz_title)
 
 
@@ -100,19 +99,23 @@ def create_answers(quiz_id, quest_id):
     db_sess = db_session.create_session()
     quiz_title = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first().title
     question_title = db_sess.query(Question).filter(Question.id == quest_id).first().content
-    answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
+
     if form.validate_on_submit():
         if form.add_answer.data:
             status = form.status.data == 'correct'
             answer = Answer(text=form.text.data, status=status, quest_id=quest_id)
             db_sess.add(answer)
             db_sess.commit()
+            answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
 
-            return redirect(f"/quiz/{quiz_id}/question/{quest_id}/answer/create")
+            form.text.data = ""
+            form.status.data = "incorrect"
+            return render_template('create_answers.html', quiz_title=quiz_title, question_title=question_title,
+                           form=form, answers=answers)
 
         elif form.finish_question.data:
             return redirect(f'/quiz/{quiz_id}/review')
-
+    answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
     return render_template('create_answers.html', quiz_title=quiz_title, question_title=question_title,
                            form=form, answers=answers)
 
@@ -130,7 +133,6 @@ def review_quiz(quiz_id):
             return redirect(f"/quiz/{quiz_id}/question/create")
         elif form.save_quiz.data:
             return redirect("/")
-
     return render_template('quiz_review.html', form=form, quiz_title=quiz_title, quiz_description=quiz_description,
                            questions=quests)
 
