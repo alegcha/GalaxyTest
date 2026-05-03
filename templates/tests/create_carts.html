@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ test_title }}</h1>
+
+<h3>Добавленные карточки:</h3>
+<ul>
+    {% for cart in carts %}
+    <li>{{ cart.term }} {{ cart.definition }}</li>
+    {% else %}
+    <li><i>Пока нет карточек в тесте</i></li>
+    {% endfor %}
+</ul>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.term.label }}<br>
+        {{ form.term(class="form-control", size=40) }}<br>
+        {% for error in form.term.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ form.definition.label }}<br>
+        {{ form.definition(class="form-control", size=40) }}<br>
+        {% for error in form.definition.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    {{ form.add_cart(type="submit", class="btn btn-primary") }}
+    {{ form.finish_test(type="submit", class="btn btn-primary") }}
+    {{message}}
+</form>
+{% endblock %}

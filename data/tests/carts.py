@@ -8,7 +8,8 @@ class Cart(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'carts'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    content = Column(String, nullable=True)
+    term = Column(String, nullable=True)
+    definition = Column(String, nullable=True)
     test_id = Column(Integer, ForeignKey('tests.id'), nullable=True)
 
     # связь с таблицей tests

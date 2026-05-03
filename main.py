@@ -1,18 +1,21 @@
-from flask import Flask, url_for, render_template, redirect, request, make_response, session, jsonify
+from flask import Flask, render_template, redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-from data.quizzes import questions, quizzes
 from forms.login_form import LoginForm
 from forms.user import RegisterForm
-from forms.quiz_form import QuizForm
-from forms.question_form import QuestionForm
-from forms.answer_form import AnswerForm
-from forms.reveiw_form import ReviewForm
+from forms.quizzes.quiz_form import QuizForm
+from forms.quizzes.question_form import QuestionForm
+from forms.quizzes.answer_form import AnswerForm
+from forms.quizzes.quiz_review_form import ReviewForm
+from forms.tests.test_form import TestForm
+from forms.tests.cart_form import CartForm
 
 from data.users import User
 from data.quizzes.quizzes import Quiz
 from data.quizzes.questions import Question
 from data.quizzes.answers import Answer
+from data.tests.tests import Test
+from data.tests.carts import Cart
 
 from data import db_session
 import secrets
@@ -74,7 +77,7 @@ def create_quiz():
         db_sess.add(quiz)
         db_sess.commit()
         return redirect(f'/quiz/{quiz.id}/review')
-    return render_template('create_quiz.html', form=form)
+    return render_template('quizzes/create_quiz.html', form=form)
 
 
 @app.route('/quiz/<int:quiz_id>/question/create', methods=['GET', 'POST'])
@@ -89,7 +92,7 @@ def create_questions(quiz_id):
         db_sess.add(quest)
         db_sess.commit()
         return redirect(f'/quiz/{quiz_id}/question/{quest.id}/answer/create')
-    return render_template('create_questions.html', form=form, quiz_title=quiz_title)
+    return render_template('quizzes/create_questions.html', form=form, quiz_title=quiz_title)
 
 
 @app.route('/quiz/<int:quiz_id>/question/<int:quest_id>/answer/create', methods=['GET', 'POST'])
@@ -110,13 +113,13 @@ def create_answers(quiz_id, quest_id):
 
             form.text.data = ""
             form.status.data = "incorrect"
-            return render_template('create_answers.html', quiz_title=quiz_title, question_title=question_title,
-                           form=form, answers=answers)
+            return render_template('quizzes/create_answers.html', quiz_title=quiz_title, question_title=question_title,
+                                   form=form, answers=answers)
 
         elif form.finish_question.data:
             return redirect(f'/quiz/{quiz_id}/review')
     answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
-    return render_template('create_answers.html', quiz_title=quiz_title, question_title=question_title,
+    return render_template('quizzes/create_answers.html', quiz_title=quiz_title, question_title=question_title,
                            form=form, answers=answers)
 
 
@@ -133,8 +136,48 @@ def review_quiz(quiz_id):
             return redirect(f"/quiz/{quiz_id}/question/create")
         elif form.save_quiz.data:
             return redirect("/")
-    return render_template('quiz_review.html', form=form, quiz_title=quiz_title, quiz_description=quiz_description,
+    return render_template('quizzes/quiz_review.html', form=form, quiz_title=quiz_title,
+                           quiz_description=quiz_description,
                            questions=quests)
+
+
+@app.route('/test/create', methods=['GET', 'POST'])
+@login_required
+def create_test():
+    form = TestForm()
+    db_sess = db_session.create_session()
+    if form.validate_on_submit():
+        test = Test(title=form.title.data, description=form.description.data, user_id=current_user.id)
+        db_sess.add(test)
+        db_sess.commit()
+        return redirect(f'/test/{test.id}/carts/create')
+    return render_template('tests/create_test.html', form=form)
+
+
+@app.route('/test/<int:test_id>/carts/create', methods=['GET', 'POST'])
+@login_required
+def create_carts(test_id):
+    form = CartForm()
+    db_sess = db_session.create_session()
+    test_title = db_sess.query(Test).filter(Test.id == test_id).first().title
+
+    if form.validate_on_submit():
+        if form.add_cart.data:
+            cart = Cart(term=form.term.data, definition=form.definition.data, test_id=test_id)
+            db_sess.add(cart)
+            db_sess.commit()
+            carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
+
+            form.term.data = ""
+            form.definition.data = ""
+
+            return render_template('tests/create_carts.html', test_title=test_title,
+                                   form=form, carts=carts)
+
+        elif form.finish_test.data:
+            return redirect(f'/')
+    carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
+    return render_template('tests/create_carts.html', form=form, test_title=test_title, carts=carts)
 
 
 @app.route('/login', methods=['GET', 'POST'])
