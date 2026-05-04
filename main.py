@@ -35,10 +35,11 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-    db_sess = db_session.create_session()
     if current_user.is_authenticated:
-        qs = db_sess.query(Quiz).filter(Quiz.user_id == current_user.id).all()
-        return render_template("index.html", title="GalaxyTest", quizzes=qs)
+        db_sess = db_session.create_session()
+        quizzes = db_sess.query(Quiz).filter(Quiz.user_id == current_user.id).all()
+        tests = db_sess.query(Test).filter(Test.user_id == current_user.id).all()
+        return render_template("index.html", title="GalaxyTest", quizzes=quizzes, tests=tests)
     return render_template("index.html", title="GalaxyTest")
 
 

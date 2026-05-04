@@ -2,13 +2,60 @@
 
 {% block content %}
 <h1 align="center">Hello!!!</h1>
-{% for quiz in quizzes %}
-<div class="col-md6 border rounded">
-    <p>
-    <h3>{{ quiz.title }}</h3><br>
-    <h4>{{ quiz.description }}</h4></p>
+
+
+{% if current_user.is_authenticated %}
+<div>
+    <a href="/quiz/create" class="btn btn-info">add quiz</a>
+    <a href="/test/create" class="btn btn-info">add test</a>
 </div>
-{% endfor %}
-<a href="/quiz/create" class="navbar-brand">quiz</a>
-<a href="/test/create" class="navbar-brand">test</a>
+<h3>Созданные квизы:</h3>
+<div class="container-fluid card-container">
+    <div class="row g-4">
+        {% for quiz in quizzes %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card quiz-card h-100">
+                <div class="quiz-card-header">
+                    <a href="/quiz/{{ quiz.id }}/review" style="text-decoration: none; color: inherit;">
+                        <h5 class="quiz-title">{{ quiz.title }}</h5>
+                    </a>
+                    <p class="quiz-description mb-0">{{ quiz.description }}</p>
+                </div>
+                <div class="quiz-body">
+                    <div class="categories">
+                        {% for i in range(3) %}
+                        <span class="category-badge">category {{ i }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor%}
+    </div>
+</div>
+
+
+<h3>Созданные тесты:</h3>
+<div class="container-fluid card-container">
+    <div class="row g-4">
+        {% for test in tests %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card quiz-card h-100">
+                <div class="quiz-card-header">
+                    <a href="/test/{{ test.id }}/review" style="text-decoration: none; color: inherit;"><h5 class="quiz-title">{{ test.title }}</h5></a>
+                    <p class="quiz-description mb-0">{{ test.description }}</p>
+                </div>
+                <div class="quiz-body">
+                    <div class="categories">
+                        {% for i in range(3) %}
+                        <span class="category-badge">category {{ i }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor%}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
