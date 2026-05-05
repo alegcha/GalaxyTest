@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from forms.login_form import LoginForm
@@ -142,6 +142,25 @@ def review_quiz(quiz_id):
                            questions=quests)
 
 
+@app.route('/quiz/<int:quiz_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_quiz(quiz_id):
+    db_sess = db_session.create_session()
+    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id, Quiz.user_id == current_user.id).first()
+    if quiz:
+        questions = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()
+        for question in questions:
+            answers = db_sess.query(Answer).filter(Answer.quest_id == question.id).all()
+            for answer in answers:
+                db_sess.delete(answer)
+            db_sess.delete(question)
+        db_sess.delete(quiz)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 @app.route('/test/create', methods=['GET', 'POST'])
 @login_required
 def create_test():
@@ -179,6 +198,22 @@ def create_carts(test_id):
             return redirect(f'/')
     carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
     return render_template('tests/create_carts.html', form=form, test_title=test_title, carts=carts)
+
+
+@app.route('/test/<int:test_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_test(test_id):
+    db_sess = db_session.create_session()
+    test = db_sess.query(Test).filter(Test.id == test_id, Test.user_id == current_user.id).first()
+    if test:
+        carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
+        for cart in carts:
+            db_sess.delete(cart)
+        db_sess.delete(test)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 @app.route('/login', methods=['GET', 'POST'])
