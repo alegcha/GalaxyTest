@@ -1,23 +1,85 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Квиз: {{ quiz_title }} </h2>
-<p><i>{{ quiz_description }}</i></p>
+<!--<h2>Квиз: {{ quiz_title }} </h2>-->
+<!--<p><i>{{ quiz_description }}</i></p>-->
 
-<h3>Структура квиза:</h3>
-{% for q in questions %}
-<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">
-    <p>{{ q.content }}</p>
-</div>
-{% else %}
-<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">
-    <p>Пока нет вопросов</p>
-</div>
-{% endfor %}
+<!--<h3>Структура квиза:</h3>-->
+<!--{% for q in questions %}-->
+<!--<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">-->
+<!--    <p>{{ q.content }}</p>-->
+<!--</div>-->
+<!--{% else %}-->
+<!--<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">-->
+<!--    <p>Пока нет вопросов</p>-->
+<!--</div>-->
+<!--{% endfor %}-->
 
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <p>{{ form.add_question(type="submit", class="btn btn-primary") }}</p>
-    <p>{{ form.save_quiz(type="submit", class="btn btn-primary") }}</p>
-</form>
+<!--<form method="POST">-->
+<!--    {{ form.hidden_tag() }}-->
+<!--    <p>{{ form.add_question(type="submit", class="btn btn-primary") }}</p>-->
+<!--    <p>{{ form.save_quiz(type="submit", class="btn btn-primary") }}</p>-->
+<!--</form>-->
+
+<main class="quiz-view">
+
+    <!-- Шапка квиза -->
+    <header class="quiz-header">
+        <h1 class="quiz-title">{{ quiz.title }}</h1>
+        <p class="quiz-description">{{ quiz.description }}</p>
+
+        <div class="quiz-actions">
+            <a href="/quiz/{{ quiz.id }}/edit/quiz_info" class="btn btn-primary">✏️ Редактировать квиз</a>
+            <a href="/quiz/{{ quiz.id }}/delete" onclick="return confirm('Удалить квиз безвозвратно?')"
+               class="btn btn-danger">🗑️ Удалить квиз</a>
+        </div>
+    </header>
+    <!-- Создать вопрос/сохранить квиз -->
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.add_question(type="submit", class="btn btn-primary") }}</p>
+        <p>{{ form.save_quiz(type="submit", class="btn btn-primary") }}</p>
+    </form>
+
+    <!-- Список вопросов -->
+    <section class="questions-list">
+
+        <!-- Вопрос + Ответы -->
+        <article class="question-block">
+            {% for question in data %}
+            <div class="question-header">
+                <h2 class="question-text">{{ question[0].content }}</h2>
+                <div class="question-actions">
+                    <a href="/quiz/{{ quiz.id }}/edit/question/{{ question[0].id }}" class="btn btn-sm btn-primary">✏️
+                        Изменить</a>
+                    <a href="/question/{{ question[0].id }}/delete"
+                       onclick="return confirm('Удалить вопрос безвозвратно?')"
+                       class="btn btn-danger">🗑️ Удалить</a>
+                </div>
+            </div>
+
+            <div class="answers-list">
+                <div class="answer-item">
+                    {% for answer in question[1] %}
+                    <span class="answer-text">{{ answer.text }}</span>
+                    <span class="answer-badge correct">{% if answer.status %}✅ Верный{% else %}❌ Неверный{% endif %}</span>
+                    <div class="answer-actions">
+                        <a href="/quiz/{{ quiz.id }}/edit/question/{{ question.id }}/answer/{{ answer.id }}"
+                           class="btn btn-xs btn-primary">✏️</a>
+                        <a href="/answer/{{ answer.id }}/delete"
+                           onclick="return confirm('Удалить вопрос безвозвратно?')" class="btn btn-danger">🗑️</a>
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            {% endfor %}
+        </article>
+
+
+    </section>
+</main>
+
 {% endblock %}

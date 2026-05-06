@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, abort
+from flask import Flask, render_template, redirect, abort, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from forms.login_form import LoginForm
@@ -34,6 +34,7 @@ def load_user(user_id):
 
 
 @app.route("/")
+@app.route("/index")
 def index():
     if current_user.is_authenticated:
         db_sess = db_session.create_session()
@@ -126,23 +127,51 @@ def create_answers(quiz_id, quest_id):
 
 @app.route('/quiz/<int:quiz_id>/review', methods=['GET', 'POST'])
 def review_quiz(quiz_id):
+    # сделать html, где будет инфо квиза, вопросы с ответами; у каждого элемента кнопки для редакции/удаления
     form = ReviewForm()
+    data = []
     db_sess = db_session.create_session()
-    quests = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()  # структура квиза: вопрос - ответы
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
-    quiz_title = quiz.title
-    quiz_description = quiz.description
+    questions = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()  # структура квиза: вопрос - ответы
+    for question in questions:
+        answers = db_sess.query(Answer).filter(Answer.quest_id == question.id).all()
+        data.append((question, answers))
     if form.validate_on_submit():
         if form.add_question.data:
             return redirect(f"/quiz/{quiz_id}/question/create")
         elif form.save_quiz.data:
             return redirect("/")
-    return render_template('quizzes/quiz_review.html', form=form, quiz_title=quiz_title,
-                           quiz_description=quiz_description,
-                           questions=quests)
+    return render_template('quizzes/quiz_review.html', form=form, quiz=quiz,
+                           questions=questions, data=data)
 
 
-@app.route('/quiz/<int:quiz_id>/delete', methods=['GET', 'POST'])
+@app.route('/quiz/<int:quiz_id>/edit/quiz_info', methods=['GET', 'POST'])
+@login_required
+def edit_quiz_info(quiz_id):
+    # quiz_form.py, create_quiz.html
+    form = QuizForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id, Quiz.user_id == current_user.id).first()
+        if quiz:
+            form.title.data = quiz.title
+            form.description.data = quiz.description
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id, Quiz.user_id == current_user.id).first()
+        if quiz:
+            quiz.title = form.title.data
+            quiz.description = form.description.data
+            db_sess.commit()
+            return redirect(f'/quiz/{quiz_id}/review')
+        else:
+            abort(404)
+    return render_template('quizzes/create_quiz.html', form=form)
+
+
+@app.route('/quiz/<int:quiz_id>/delete')
 @login_required
 def delete_quiz(quiz_id):
     db_sess = db_session.create_session()
@@ -159,6 +188,50 @@ def delete_quiz(quiz_id):
     else:
         abort(404)
     return redirect('/')
+
+
+@app.route('/quiz/<int:quiz_id>/edit/question/<int:quest_id>', methods=['GET', 'POST'])
+@login_required
+def edit_question(quiz_id, quest_id):
+    pass
+
+
+@app.route('/question/<int:quest_id>/delete')
+@login_required
+def delete_question(quest_id):
+    db_sess = db_session.create_session()
+    question = db_sess.query(Question).filter(Question.id == quest_id).first()
+    # quiz_id = question.quiz_id
+    if question:
+        answers = db_sess.query(Answer).filter(Answer.quest_id == question.id).all()
+        for answer in answers:
+            db_sess.delete(answer)
+        db_sess.delete(question)
+        db_sess.commit()
+    else:
+        abort(404)
+    # return redirect(f'/quiz/{quiz_id}/review')
+    return redirect(request.referrer or url_for('index'))
+
+
+@app.route('/quiz/<int:quiz_id>/edit/question/<int:quest_id>/answer/<int:answer_id>', methods=['GET', 'POST'])
+@login_required
+def edit_answer(quiz_id, quest_id, answer_id):
+    pass
+
+
+@app.route('/answer/<int:answer_id>/delete')
+@login_required
+def delete_answer(answer_id):
+    db_sess = db_session.create_session()
+    answers = db_sess.query(Answer).filter(Answer.id == answer_id).all()
+    if answers:
+        for answer in answers:
+            db_sess.delete(answer)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect(request.referrer or url_for('index'))
 
 
 @app.route('/test/create', methods=['GET', 'POST'])
@@ -200,7 +273,7 @@ def create_carts(test_id):
     return render_template('tests/create_carts.html', form=form, test_title=test_title, carts=carts)
 
 
-@app.route('/test/<int:test_id>/delete', methods=['GET', 'POST'])
+@app.route('/test/<int:test_id>/delete')
 @login_required
 def delete_test(test_id):
     db_sess = db_session.create_session()
