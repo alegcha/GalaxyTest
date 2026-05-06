@@ -126,6 +126,7 @@ def create_answers(quiz_id, quest_id):
 
 
 @app.route('/quiz/<int:quiz_id>/review', methods=['GET', 'POST'])
+@login_required
 def review_quiz(quiz_id):
     # сделать html, где будет инфо квиза, вопросы с ответами; у каждого элемента кнопки для редакции/удаления
     form = ReviewForm()
@@ -193,7 +194,24 @@ def delete_quiz(quiz_id):
 @app.route('/quiz/<int:quiz_id>/edit/question/<int:quest_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(quiz_id, quest_id):
-    pass
+    form = QuestionForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        question = db_sess.query(Question).filter(Question.id == quest_id).first()
+        if question:
+            form.content.data = question.content
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        question = db_sess.query(Question).filter(Question.id == quest_id).first()
+        if question:
+            question.content = form.content.data
+            db_sess.commit()
+            return redirect(f'/quiz/{quiz_id}/review')
+        else:
+            abort(404)
+    return render_template('quizzes/create_questions.html', form=form)
 
 
 @app.route('/question/<int:quest_id>/delete')
