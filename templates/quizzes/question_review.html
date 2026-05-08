@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ quiz.title }}</h1>
+
+<h2>Вопрос: {{ question.title }}</h2>
+
+<h3>Добавленные ответы:</h3>
+<ul>
+    {% for answer in answers %}
+    <li>{{ answer.text }} {% if answer.status %}✅ (Верный){% else %}❌ (Неверный){% endif %}</li>
+    {% else %}
+    <li><i>Пока нет ответов</i></li>
+    {% endfor %}
+</ul>
+<!--{{ form.add_answer(type="submit", class="btn btn-primary") }}-->
+<!--{{ form.finish_question(type="submit", class="btn btn-primary") }}-->
+<a href="/quiz/{{ quiz.id }}/question/{{ question.id }}/answer/create"
+                           class="btn btn-xs btn-primary">Добавить ответ️</a>
+<a href="/quiz/{{ quiz.id }}/review"
+                           class="btn btn-xs btn-primary">Завершить вопрос</a>
+{{ message }}
+{% endblock %}

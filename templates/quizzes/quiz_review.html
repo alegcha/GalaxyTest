@@ -29,7 +29,7 @@
         <p class="quiz-description">{{ quiz.description }}</p>
 
         <div class="quiz-actions">
-            <a href="/quiz/{{ quiz.id }}/edit/quiz_info" class="btn btn-primary">✏️ Редактировать квиз</a>
+            <a href="/quiz/{{ quiz.id }}/edit/quiz_info" class="btn btn-primary">✏️ Редактировать информацию о квизе</a>
             <a href="/quiz/{{ quiz.id }}/delete" onclick="return confirm('Удалить квиз безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить квиз</a>
         </div>
@@ -64,7 +64,7 @@
                     <span class="answer-text">{{ answer.text }}</span>
                     <span class="answer-badge correct">{% if answer.status %}✅ Верный{% else %}❌ Неверный{% endif %}</span>
                     <div class="answer-actions">
-                        <a href="/quiz/{{ quiz.id }}/edit/question/{{ question.id }}/answer/{{ answer.id }}"
+                        <a href="/quiz/{{ quiz.id }}/edit/question/{{ question[0].id }}/answer/{{ answer.id }}"
                            class="btn btn-xs btn-primary">✏️</a>
                         <a href="/answer/{{ answer.id }}/delete"
                            onclick="return confirm('Удалить вопрос безвозвратно?')" class="btn btn-danger">🗑️</a>

@@ -7,6 +7,7 @@ from forms.quizzes.quiz_form import QuizForm
 from forms.quizzes.question_form import QuestionForm
 from forms.quizzes.answer_form import AnswerForm
 from forms.quizzes.quiz_review_form import ReviewForm
+from forms.quizzes.question_review_form import QuestionReviewForm
 from forms.tests.test_form import TestForm
 from forms.tests.cart_form import CartForm
 
@@ -93,8 +94,28 @@ def create_questions(quiz_id):
         quest = Question(content=form.content.data, quiz_id=quiz_id)
         db_sess.add(quest)
         db_sess.commit()
-        return redirect(f'/quiz/{quiz_id}/question/{quest.id}/answer/create')
+        return redirect(f'/quiz/{quiz_id}/question/{quest.id}/review')
     return render_template('quizzes/create_questions.html', form=form, quiz_title=quiz_title)
+
+
+@app.route('/quiz/<int:quiz_id>/question/<int:quest_id>/review', methods=['GET', 'POST'])
+@login_required
+def review_question(quiz_id, quest_id):
+    form = QuestionReviewForm()
+    print("-" * 20)
+    # if form.validate_on_submit():
+    #
+    #     if form.add_answer.data:
+    #         return redirect(f"/quiz/{quiz_id}/question/{quest_id}/answer/create")
+    #     elif form.finish_question.data:
+    #         return redirect(f'/quiz/{quiz_id}/review')
+
+    db_sess = db_session.create_session()
+    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
+    question = db_sess.query(Question).filter(Question.id == quest_id).first()
+    answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
+    return render_template('quizzes/question_review.html', quiz=quiz, question=question,
+                           form=form, answers=answers)
 
 
 @app.route('/quiz/<int:quiz_id>/question/<int:quest_id>/answer/create', methods=['GET', 'POST'])
@@ -106,23 +127,14 @@ def create_answers(quiz_id, quest_id):
     question_title = db_sess.query(Question).filter(Question.id == quest_id).first().content
 
     if form.validate_on_submit():
-        if form.add_answer.data:
-            status = form.status.data == 'correct'
-            answer = Answer(text=form.text.data, status=status, quest_id=quest_id)
-            db_sess.add(answer)
-            db_sess.commit()
-            answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
+        status = form.status.data == 'correct'
+        answer = Answer(text=form.text.data, status=status, quest_id=quest_id)
+        db_sess.add(answer)
+        db_sess.commit()
+        return redirect(f"/quiz/{quiz_id}/question/{quest_id}/review")
 
-            form.text.data = ""
-            form.status.data = "incorrect"
-            return render_template('quizzes/create_answers.html', quiz_title=quiz_title, question_title=question_title,
-                                   form=form, answers=answers)
-
-        elif form.finish_question.data:
-            return redirect(f'/quiz/{quiz_id}/review')
-    answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
     return render_template('quizzes/create_answers.html', quiz_title=quiz_title, question_title=question_title,
-                           form=form, answers=answers)
+                           form=form)
 
 
 @app.route('/quiz/<int:quiz_id>/review', methods=['GET', 'POST'])
@@ -235,7 +247,26 @@ def delete_question(quest_id):
 @app.route('/quiz/<int:quiz_id>/edit/question/<int:quest_id>/answer/<int:answer_id>', methods=['GET', 'POST'])
 @login_required
 def edit_answer(quiz_id, quest_id, answer_id):
-    pass
+    form = AnswerForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        answer = db_sess.query(Answer).filter(Answer.id == answer_id).first()
+        if answer:
+            form.text.data = answer.text
+            form.status.data = "correct" if answer.status else "incorrect"
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        answer = db_sess.query(Answer).filter(Answer.id == answer_id).first()
+        if answer:
+            answer.text = form.text.data
+            answer.status = form.status.data == "correct"
+            db_sess.commit()
+            return redirect(f'/quiz/{quiz_id}/question/{quest_id}/review')
+        else:
+            abort(404)
+    return render_template('quizzes/create_answers.html', form=form)
 
 
 @app.route('/answer/<int:answer_id>/delete')

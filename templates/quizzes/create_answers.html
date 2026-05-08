@@ -5,15 +5,6 @@
 
 <h2>Вопрос: {{ question_title }}</h2>
 
-<h3>Добавленные ответы:</h3>
-<ul>
-    {% for answer in answers %}
-    <li>{{ answer.text }} {% if answer.status %}✅ (Верный){% else %}❌ (Неверный){% endif %}</li>
-    {% else %}
-    <li><i>Пока нет ответов</i></li>
-    {% endfor %}
-</ul>
-
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
@@ -30,8 +21,7 @@
         {{ subfield }} {{ subfield.label }}
         {% endfor %}
     </p>
-    {{ form.add_answer(type="submit", class="btn btn-primary") }}
-    {{ form.finish_question(type="submit", class="btn btn-primary") }}
+    {{ form.submit(type="submit", class="btn btn-primary") }}
     {{message}}
 </form>
 {% endblock %}

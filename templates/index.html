@@ -14,21 +14,23 @@
     <div class="row g-4">
         {% for quiz in quizzes %}
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-            <div class="card quiz-card h-100">
-                <div class="quiz-card-header">
-                    <a href="/quiz/{{ quiz.id }}/review" style="text-decoration: none; color: inherit;">
+            <a href="/quiz/{{ quiz.id }}/review" style="text-decoration: none; color: inherit;">
+                <div class="card quiz-card h-100">
+                    <div class="quiz-card-header">
+
                         <h5 class="quiz-title">{{ quiz.title }}</h5>
-                    </a>
-                    <p class="quiz-description mb-0">{{ quiz.description }}</p>
-                </div>
-                <div class="quiz-body">
-                    <div class="categories">
-                        {% for i in range(3) %}
-                        <span class="category-badge">category {{ i }}</span>
-                        {% endfor %}
+
+                        <p class="quiz-description mb-0">{{ quiz.description }}</p>
+                    </div>
+                    <div class="quiz-body">
+                        <div class="categories">
+                            {% for i in range(3) %}
+                            <span class="category-badge">category {{ i }}</span>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         {% endfor%}
     </div>
@@ -42,7 +44,8 @@
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
             <div class="card quiz-card h-100">
                 <div class="quiz-card-header">
-                    <a href="/test/{{ test.id }}/review" style="text-decoration: none; color: inherit;"><h5 class="quiz-title">{{ test.title }}</h5></a>
+                    <a href="/test/{{ test.id }}/review" style="text-decoration: none; color: inherit;"><h5
+                            class="quiz-title">{{ test.title }}</h5></a>
                     <p class="quiz-description mb-0">{{ test.description }}</p>
                 </div>
                 <div class="quiz-body">
