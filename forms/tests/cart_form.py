@@ -6,5 +6,6 @@ from wtforms.validators import DataRequired
 class CartForm(FlaskForm):
     term = StringField('Термин')
     definition = StringField('Напишите определение')
-    add_cart = SubmitField('Добавить карточку')
-    finish_test = SubmitField('Сохранить тест')
+    submit = SubmitField("Продолжить")
+    # add_cart = SubmitField('Добавить карточку')
+    # finish_test = SubmitField('Сохранить тест')

@@ -62,7 +62,11 @@
                 <div class="answer-item">
                     {% for answer in question[1] %}
                     <span class="answer-text">{{ answer.text }}</span>
-                    <span class="answer-badge correct">{% if answer.status %}✅ Верный{% else %}❌ Неверный{% endif %}</span>
+                    {% if answer.status %}
+                    <span class="answer-badge correct">✅ Верный</span>
+                    {% else %}
+                    <span class="answer-badge incorrect">❌ Неверный</span>
+                    {% endif %}
                     <div class="answer-actions">
                         <a href="/quiz/{{ quiz.id }}/edit/question/{{ question[0].id }}/answer/{{ answer.id }}"
                            class="btn btn-xs btn-primary">✏️</a>

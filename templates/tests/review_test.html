@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="quiz-view">
+
+    <!-- Шапка теста -->
+    <header class="quiz-header">
+        <h1 class="quiz-title">{{ test.title }}</h1>
+        <p class="quiz-description">{{ test.description }}</p>
+
+        <div class="quiz-actions">
+            <a href="/test/{{ test.id }}/edit/test_info" class="btn btn-primary">✏️ Редактировать информацию о тесте</a>
+            <a href="/test/{{ test.id }}/delete" onclick="return confirm('Удалить тест безвозвратно?')"
+               class="btn btn-danger">🗑️ Удалить тест</a>
+        </div>
+    </header>
+    <!-- Создать карточку/сохранить тест -->
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.add_cart(type="submit", class="btn btn-primary") }}</p>
+        <p>{{ form.save_test(type="submit", class="btn btn-primary") }}</p>
+    </form>
+
+    <!-- Список карточек -->
+    <section class="questions-list">
+
+        <!-- Карточка -->
+        <article class="question-block">
+            {% for cart in carts %}
+            <div class="question-header">
+                <h2 class="question-text">{{ cart.term }}</h2>
+                <h2 class="question-text">{{ cart.definition }}</h2>
+                <div class="question-actions">
+                    <a href="/test/{{ test.id }}/edit/cart/{{ cart.id }}" class="btn btn-sm btn-primary">✏️
+                        Изменить</a>
+                    <a href="/cart/{{ cart.id }}/delete"
+                       onclick="return confirm('Удалить карточку безвозвратно?')"
+                       class="btn btn-danger">🗑️ Удалить</a>
+                </div>
+            </div>
+
+            {% endfor %}
+        </article>
+
+
+    </section>
+</main>
+{% endblock %}

@@ -3,14 +3,6 @@
 {% block content %}
 <h1>{{ test_title }}</h1>
 
-<h3>Добавленные карточки:</h3>
-<ul>
-    {% for cart in carts %}
-    <li>{{ cart.term }} {{ cart.definition }}</li>
-    {% else %}
-    <li><i>Пока нет карточек в тесте</i></li>
-    {% endfor %}
-</ul>
 
 <form action="" method="post">
     {{ form.hidden_tag() }}
@@ -31,8 +23,7 @@
     </p>
     {% endfor %}
     </p>
-    {{ form.add_cart(type="submit", class="btn btn-primary") }}
-    {{ form.finish_test(type="submit", class="btn btn-primary") }}
+    {{ form.submit(type="submit", class="btn btn-primary") }}
     {{message}}
 </form>
 {% endblock %}

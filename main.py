@@ -3,13 +3,15 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 
 from forms.login_form import LoginForm
 from forms.user import RegisterForm
+
 from forms.quizzes.quiz_form import QuizForm
 from forms.quizzes.question_form import QuestionForm
 from forms.quizzes.answer_form import AnswerForm
-from forms.quizzes.quiz_review_form import ReviewForm
+from forms.quizzes.quiz_review_form import QuizReviewForm
 from forms.quizzes.question_review_form import QuestionReviewForm
 from forms.tests.test_form import TestForm
 from forms.tests.cart_form import CartForm
+from forms.tests.test_review_form import TestReviewForm
 
 from data.users import User
 from data.quizzes.quizzes import Quiz
@@ -95,14 +97,13 @@ def create_questions(quiz_id):
         db_sess.add(quest)
         db_sess.commit()
         return redirect(f'/quiz/{quiz_id}/question/{quest.id}/review')
-    return render_template('quizzes/create_questions.html', form=form, quiz_title=quiz_title)
+    return render_template('quizzes/create_question.html', form=form, quiz_title=quiz_title)
 
 
 @app.route('/quiz/<int:quiz_id>/question/<int:quest_id>/review', methods=['GET', 'POST'])
 @login_required
 def review_question(quiz_id, quest_id):
-    form = QuestionReviewForm()
-    print("-" * 20)
+    # form = QuestionReviewForm()
     # if form.validate_on_submit():
     #
     #     if form.add_answer.data:
@@ -114,8 +115,7 @@ def review_question(quiz_id, quest_id):
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
     question = db_sess.query(Question).filter(Question.id == quest_id).first()
     answers = db_sess.query(Answer).filter(Answer.quest_id == quest_id).all()
-    return render_template('quizzes/question_review.html', quiz=quiz, question=question,
-                           form=form, answers=answers)
+    return render_template('quizzes/review_question.html', quiz=quiz, question=question, answers=answers)
 
 
 @app.route('/quiz/<int:quiz_id>/question/<int:quest_id>/answer/create', methods=['GET', 'POST'])
@@ -133,7 +133,7 @@ def create_answers(quiz_id, quest_id):
         db_sess.commit()
         return redirect(f"/quiz/{quiz_id}/question/{quest_id}/review")
 
-    return render_template('quizzes/create_answers.html', quiz_title=quiz_title, question_title=question_title,
+    return render_template('quizzes/create_answer.html', quiz_title=quiz_title, question_title=question_title,
                            form=form)
 
 
@@ -141,7 +141,7 @@ def create_answers(quiz_id, quest_id):
 @login_required
 def review_quiz(quiz_id):
     # сделать html, где будет инфо квиза, вопросы с ответами; у каждого элемента кнопки для редакции/удаления
-    form = ReviewForm()
+    form = QuizReviewForm()
     data = []
     db_sess = db_session.create_session()
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
@@ -154,7 +154,7 @@ def review_quiz(quiz_id):
             return redirect(f"/quiz/{quiz_id}/question/create")
         elif form.save_quiz.data:
             return redirect("/")
-    return render_template('quizzes/quiz_review.html', form=form, quiz=quiz,
+    return render_template('quizzes/review_quiz.html', form=form, quiz=quiz,
                            questions=questions, data=data)
 
 
@@ -223,7 +223,7 @@ def edit_question(quiz_id, quest_id):
             return redirect(f'/quiz/{quiz_id}/review')
         else:
             abort(404)
-    return render_template('quizzes/create_questions.html', form=form)
+    return render_template('quizzes/create_question.html', form=form)
 
 
 @app.route('/question/<int:quest_id>/delete')
@@ -266,7 +266,7 @@ def edit_answer(quiz_id, quest_id, answer_id):
             return redirect(f'/quiz/{quiz_id}/question/{quest_id}/review')
         else:
             abort(404)
-    return render_template('quizzes/create_answers.html', form=form)
+    return render_template('quizzes/create_answer.html', form=form)
 
 
 @app.route('/answer/<int:answer_id>/delete')
@@ -292,34 +292,48 @@ def create_test():
         test = Test(title=form.title.data, description=form.description.data, user_id=current_user.id)
         db_sess.add(test)
         db_sess.commit()
-        return redirect(f'/test/{test.id}/carts/create')
+        return redirect(f'/test/{test.id}/review')
     return render_template('tests/create_test.html', form=form)
 
 
-@app.route('/test/<int:test_id>/carts/create', methods=['GET', 'POST'])
+@app.route('/test/<int:test_id>/edit/test_info', methods=['GET', 'POST'])
 @login_required
-def create_carts(test_id):
-    form = CartForm()
-    db_sess = db_session.create_session()
-    test_title = db_sess.query(Test).filter(Test.id == test_id).first().title
+def edit_test_info(test_id):
+    form = TestForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        test = db_sess.query(Test).filter(Test.id == test_id, Test.user_id == current_user.id).first()
+        if test:
+            form.title.data = test.title
+            form.description.data = test.description
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        test = db_sess.query(Test).filter(Test.id == test_id, Test.user_id == current_user.id).first()
+        if test:
+            test.title = form.title.data
+            test.description = form.description.data
+            db_sess.commit()
+            return redirect(f'/test/{test_id}/review')
+        else:
+            abort(404)
+    return render_template('tests/create_test.html', form=form)
 
+
+@app.route('/test/<int:test_id>/review', methods=['GET', 'POST'])
+@login_required
+def review_test(test_id):
+    form = TestReviewForm()
+    db_sess = db_session.create_session()
+    test = db_sess.query(Test).filter(Test.id == test_id).first()
+    carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
     if form.validate_on_submit():
         if form.add_cart.data:
-            cart = Cart(term=form.term.data, definition=form.definition.data, test_id=test_id)
-            db_sess.add(cart)
-            db_sess.commit()
-            carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
-
-            form.term.data = ""
-            form.definition.data = ""
-
-            return render_template('tests/create_carts.html', test_title=test_title,
-                                   form=form, carts=carts)
-
-        elif form.finish_test.data:
-            return redirect(f'/')
-    carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
-    return render_template('tests/create_carts.html', form=form, test_title=test_title, carts=carts)
+            return redirect(f"/test/{test_id}/cart/create")
+        elif form.save_test.data:
+            return redirect("/")
+    return render_template('tests/review_test.html', form=form, test=test, carts=carts)
 
 
 @app.route('/test/<int:test_id>/delete')
@@ -336,6 +350,60 @@ def delete_test(test_id):
     else:
         abort(404)
     return redirect('/')
+
+
+@app.route('/test/<int:test_id>/cart/create', methods=['GET', 'POST'])
+@login_required
+def create_cart(test_id):
+    form = CartForm()
+    db_sess = db_session.create_session()
+    test_title = db_sess.query(Test).filter(Test.id == test_id).first().title
+
+    if form.validate_on_submit():
+        cart = Cart(term=form.term.data, definition=form.definition.data, test_id=test_id)
+        db_sess.add(cart)
+        db_sess.commit()
+        return redirect(f"/test/{test_id}/review")
+    carts = db_sess.query(Cart).filter(Cart.test_id == test_id).all()
+    return render_template('tests/create_cart.html', form=form, test_title=test_title, carts=carts)
+
+
+@app.route('/test/<int:test_id>/edit/cart/<int:cart_id>', methods=['GET', 'POST'])
+@login_required
+def edit_cart(test_id, cart_id):
+    form = CartForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        cart = db_sess.query(Cart).filter(Cart.id == cart_id).first()
+        if cart:
+            form.term.data = cart.term
+            form.definition.data = cart.definition
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        cart = db_sess.query(Cart).filter(Cart.id == cart_id).first()
+        if cart:
+            cart.term = form.term.data
+            cart.definition = form.definition.data
+            db_sess.commit()
+            return redirect(f'/test/{test_id}/review')
+        else:
+            abort(404)
+    return render_template('tests/create_carts.html', form=form)
+
+
+@app.route('/cart/<int:cart_id>/delete')
+@login_required
+def delete_cart(cart_id):
+    db_sess = db_session.create_session()
+    cart = db_sess.query(Cart).filter(Cart.id == cart_id).first()
+    if cart:
+        db_sess.delete(cart)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect(request.referrer or url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
