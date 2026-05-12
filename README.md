@@ -37,4 +37,4 @@
 <img src="site_view.png">
 
 
-Презинтация: https://www.figma.com/deck/4c1jllNwsmgotETQbwpmFp
+Презентация: https://www.figma.com/deck/4c1jllNwsmgotETQbwpmFp
