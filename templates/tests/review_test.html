@@ -9,6 +9,7 @@
         <p class="quiz-description">{{ test.description }}</p>
 
         <div class="quiz-actions">
+            <a href="/test/{{ test.id }}/preview_game" class="btn btn-sm btn-success">Играть</a>
             <a href="/test/{{ test.id }}/edit/test_info" class="btn btn-primary">✏️ Редактировать информацию о тесте</a>
             <a href="/test/{{ test.id }}/delete" onclick="return confirm('Удалить тест безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить тест</a>

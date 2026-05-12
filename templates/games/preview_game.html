@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center shadow-sm">
+                <div class="card-body p-5">
+                    <h1 class="display-4 mb-3">{{ game.title }}</h1>
+                    <p class="lead text-muted mb-4">{{ game.description }}</p>
+                    {% if is_quiz %}
+                    <form method="POST" action="{{ url_for('play_quiz_start', quiz_id=game.id) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="d-grid gap-3 col-6 mx-auto">
+                            <button type="submit" name="start_btn" class="btn btn-primary btn-lg">
+                                ▶ Начать игру
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('review_quiz', quiz_id=game.id) }}"
+                           class="btn btn-link text-muted text-decoration-none">
+                            ← Вернуться к просмотру структуры
+                        </a>
+                    </div>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('play_test_start', test_id=game.id) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="d-grid gap-3 col-6 mx-auto">
+                            <button type="submit" name="start_btn" class="btn btn-primary btn-lg">
+                                ▶ Начать игру
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('review_test', test_id=game.id) }}"
+                           class="btn btn-link text-muted text-decoration-none">
+                            ← Вернуться к просмотру структуры
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

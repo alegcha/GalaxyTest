@@ -1,0 +1,38 @@
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h1 class="mb-4"> Результаты</h1>
+                    <h3 class="mb-3">{{ game.title }}</h3>
+                    
+                    <div class="display-1 fw-bold mb-4 
+                                {% if score == total %}text-success{% elif score > total / 2 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ score }} / {{ total }}
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        {% if score == total %}
+                            Идеально! Вы знаете всё.
+                        {% elif score > total / 2 %}
+                            Хороший результат!
+                        {% else %}
+                            Попробуйте пройти еще раз.
+                        {% endif %}
+                    </p>
+
+                    <div class="d-grid gap-2 col-8 mx-auto">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">На главную</a>
+                        {% if is_quiz %}
+                        <a href="{{ url_for('preview_quiz', quiz_id=game.id) }}" class="btn btn-primary">Пройти снова</a>
+                        {% else %}
+                        <a href="{{ url_for('preview_test', test_id=game.id) }}" class="btn btn-primary">Пройти снова</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

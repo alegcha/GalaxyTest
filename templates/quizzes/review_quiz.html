@@ -29,6 +29,7 @@
         <p class="quiz-description">{{ quiz.description }}</p>
 
         <div class="quiz-actions">
+            <a href="{{ url_for('preview_quiz_game', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">Играть</a>
             <a href="/quiz/{{ quiz.id }}/edit/quiz_info" class="btn btn-primary">✏️ Редактировать информацию о квизе</a>
             <a href="/quiz/{{ quiz.id }}/delete" onclick="return confirm('Удалить квиз безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить квиз</a>
