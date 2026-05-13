@@ -7,7 +7,7 @@
             <article class="card question-card mb-4">
                 <!-- Шапка вопроса -->
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h2 class="h5 mb-0">{{ question.text }}</h2>
+                    <h2 class="h5 mb-0">{{ question.content }}</h2>
                 </div>
 
                 <div class="card-body p-0">
@@ -17,31 +17,31 @@
 
                         {% for ans in answers_data %}
                         <div class="answer-row d-flex justify-content-between align-items-center flex-wrap gap-2
-                                    {% if ans.state == 'correct' %}bg-success-subtle border-success{% endif %}
-                                    {% if ans.state == 'selected' and ans.state != 'correct' %}bg-danger-subtle border-danger{% endif %}">
+                                    {% if ans['state'] == 'correct' %}bg-success-subtle border-success{% endif %}
+                                    {% if ans['state'] == 'selected' and ans['state'] != 'correct' %}bg-danger-subtle border-danger{% endif %}">
 
                             <!-- Вариант ответа -->
                             <div class="d-flex align-items-center gap-2 flex-grow-1">
-                                <!-- Радио-кнопка (скрываем визуально если уже проверено, но оставляем в DOM для валидации) -->
-                                {% if is_checked %}
-                                <input type="radio" name="choice" value="{{ ans.id }}" disabled {% if ans.state in ['correct', 'selected'] %}checked{% endif %}>
-                                {% else %}
-                                <input type="radio" name="choice" value="{{ ans.id }}" id="ans_{{ ans.id }}">
-                                <label for="ans_{{ ans.id }}" class="form-check-label flex-grow-1 m-0">{{ ans.text
-                                    }}</label>
-                                {% endif %}
+                                <!-- Радио-кнопка: всегда присутствует, просто блокируется после проверки -->
+                                <input type="radio" name="choice" value="{{ ans['id'] }}" id="ans_{{ ans['id'] }}"
+                                       {% if is_checked %}disabled{% endif %}
+                                       {% if ans['state'] in ['correct', 'selected'] %}checked{% endif %}>
 
+                                <!-- Текст ответа: выводится всегда, меняется только тег -->
                                 {% if not is_checked %}
-                                <span class="text-muted">{{ ans.text }}</span>
+                                <label for="ans_{{ ans['id'] }}" class="form-check-label flex-grow-1 m-0">{{ ans['text']
+                                    }}</label>
+                                {% else %}
+                                <span class="flex-grow-1 m-0">{{ ans['text'] }}</span>
                                 {% endif %}
                             </div>
 
                             <!-- Индикаторы результата (показываем только после проверки) -->
                             {% if is_checked %}
                             <div class="d-flex gap-2 align-items-center">
-                                {% if ans.state == 'correct' %}
+                                {% if ans['state'] == 'correct' %}
                                 <span class="badge bg-success">✅ Верно</span>
-                                {% elif ans.state == 'selected' %}
+                                {% elif ans['state'] == 'selected' %}
                                 <span class="badge bg-danger">❌ Ошибка</span>
                                 {% endif %}
                             </div>

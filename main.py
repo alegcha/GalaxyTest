@@ -335,8 +335,8 @@ def play_question(quiz_id, quest_index):
     db_sess = db_session.create_session()
     # quiz = get_object_or_404(Quiz, quiz_id)
     # questions = list(get_objects_or_404(Question, quiz_id))
-    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
-    questions = list(db_sess.query(Question).filter(Question.quiz_id == quiz_id).all())
+    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()  # вынести в роут со стартом
+    questions = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()
     if quest_index >= len(questions):
         return redirect(url_for('quiz_results', quiz_id=quiz_id))
 
@@ -347,23 +347,15 @@ def play_question(quiz_id, quest_index):
     answers = db_sess.query(Answer).filter(Answer.quest_id == current_question.id).all()
     form.choice.choices = [(answer.id, answer.text) for answer in answers]
 
-    # --- ЛОГИКА ---
-
-    # 1. Если нажали "Далее" (переход к следующему вопросу)
-    if form.submit_next:
-        session['question_index'] += 1
-        session['question_checked'] = False
-        session['selected_answer_id'] = None
-        return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=session['question_index']))
-
-    # 2. Если нажали "Ответить" (проверка текущего)
+    #
     if form.validate_on_submit() and form.submit_check:
         selected_id = int(form.choice.data)
         session['selected_answer_id'] = selected_id
         session['question_checked'] = True  # Включаем режим просмотра результата
+        # session.modified = True
 
         # Подсчет очков (если правильно)
-        answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
+        # answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
         correct_answer = next((answer for answer in answers if answer.status), None)
         if correct_answer and correct_answer.id == selected_id:
             session['score'] += 10
@@ -372,6 +364,12 @@ def play_question(quiz_id, quest_index):
         # Важно: Redirect нужен, чтобы сбросить POST-данные и позволить странице отрисовать состояние "Checked"
         return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=quest_index))
 
+    if form.submit_next and session.get('question_checked'):
+        session['question_index'] += 1
+        session['question_checked'] = False
+        session['selected_answer_id'] = None
+        return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=session['question_index']))
+
     # --- РЕНДЕРИНГ ---
     # Нам нужно знать, показывать ли правильные/неправильные ответы
     is_checked = session.get('question_checked', False)
@@ -379,7 +377,7 @@ def play_question(quiz_id, quest_index):
 
     # Подготовка данных для подсветки в шаблоне
     answers_data = []
-    answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
+    # answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
     for answer in answers:
         state = 'default'
         if is_checked:
@@ -388,11 +386,11 @@ def play_question(quiz_id, quest_index):
             if answer.status:
                 state = 'correct' if state == 'selected' else 'missed_correct'  # Это правильный
 
-                answers_data.append({
-                    'id': answer.id,
-                    'text': answer.text,
-                    'state': state
-                })
+        answers_data.append({
+            'id': answer.id,
+            'text': answer.text,
+            'state': state
+        })
 
     return render_template('games/game_question.html',
                            quiz=quiz,
@@ -425,9 +423,12 @@ def quiz_results(quiz_id):
     if session.get('playing_quiz_id') != quiz_id:
         return redirect(url_for('index'))
 
-    quiz = get_object_or_404(Quiz, quiz_id)
+    # quiz = get_object_or_404(Quiz, quiz_id)
+    db_sess = db_session.create_session()
+    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
     score = session.get('score', 0)
-    total = len(get_objects_or_404(Question, quiz_id)) * 10
+    # total = len(get_objects_or_404(Question, quiz_id)) * 10
+    total = len(db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()) * 10
 
     # Очистка сессии игры
     session.pop('playing_quiz_id', None)
