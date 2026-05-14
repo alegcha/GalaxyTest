@@ -1,25 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!--<h2>Квиз: {{ quiz_title }} </h2>-->
-<!--<p><i>{{ quiz_description }}</i></p>-->
-
-<!--<h3>Структура квиза:</h3>-->
-<!--{% for q in questions %}-->
-<!--<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">-->
-<!--    <p>{{ q.content }}</p>-->
-<!--</div>-->
-<!--{% else %}-->
-<!--<div style="border:1px solid #ccc; padding:10px; margin:10px 0; background:#f9f9f9;">-->
-<!--    <p>Пока нет вопросов</p>-->
-<!--</div>-->
-<!--{% endfor %}-->
-
-<!--<form method="POST">-->
-<!--    {{ form.hidden_tag() }}-->
-<!--    <p>{{ form.add_question(type="submit", class="btn btn-primary") }}</p>-->
-<!--    <p>{{ form.save_quiz(type="submit", class="btn btn-primary") }}</p>-->
-<!--</form>-->
 
 <main class="quiz-view">
 
@@ -30,8 +11,8 @@
 
         <div class="quiz-actions">
             <a href="{{ url_for('preview_quiz_game', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">Играть</a>
-            <a href="/quiz/{{ quiz.id }}/edit/quiz_info" class="btn btn-primary">✏️ Редактировать информацию о квизе</a>
-            <a href="/quiz/{{ quiz.id }}/delete" onclick="return confirm('Удалить квиз безвозвратно?')"
+            <a href="{{ url_for('edit_quiz_info', quiz_id=quiz.id) }}" class="btn btn-primary">✏️ Редактировать информацию о квизе</a>
+            <a href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}" onclick="return confirm('Удалить квиз безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить квиз</a>
         </div>
     </header>
@@ -51,9 +32,9 @@
             <div class="question-header">
                 <h2 class="question-text">{{ question[0].content }}</h2>
                 <div class="question-actions">
-                    <a href="/quiz/{{ quiz.id }}/edit/question/{{ question[0].id }}" class="btn btn-sm btn-primary">✏️
+                    <a href="{{ url_for('edit_question', quiz_id=quiz.id, quest_id=question[0].id) }}" class="btn btn-sm btn-primary">✏️
                         Изменить</a>
-                    <a href="/question/{{ question[0].id }}/delete"
+                    <a href="{{ url_for('delete_question', quest_id=question[0].id) }}"
                        onclick="return confirm('Удалить вопрос безвозвратно?')"
                        class="btn btn-danger">🗑️ Удалить</a>
                 </div>
@@ -69,9 +50,9 @@
                     <span class="answer-badge incorrect">❌ Неверный</span>
                     {% endif %}
                     <div class="answer-actions">
-                        <a href="/quiz/{{ quiz.id }}/edit/question/{{ question[0].id }}/answer/{{ answer.id }}"
+                        <a href="{{ url_for('edit_answer', quiz_id=quiz.id, quest_id=question[0].id, answer_id=answer.id) }}"
                            class="btn btn-xs btn-primary">✏️</a>
-                        <a href="/answer/{{ answer.id }}/delete"
+                        <a href="{{ url_for('delete_answer', answer_id=answer.id) }}"
                            onclick="return confirm('Удалить вопрос безвозвратно?')" class="btn btn-danger">🗑️</a>
 
                     </div>

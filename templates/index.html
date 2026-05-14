@@ -6,15 +6,15 @@
 
 {% if current_user.is_authenticated %}
 <div>
-    <a href="/quiz/create" class="btn btn-info">add quiz</a>
-    <a href="/test/create" class="btn btn-info">add test</a>
+    <a href="{{ url_for('create_quiz') }}" class="btn btn-info">add quiz</a>
+    <a href="{{ url_for('create_test') }}" class="btn btn-info">add test</a>
 </div>
 <h3>Созданные квизы:</h3>
 <div class="container-fluid card-container">
     <div class="row g-4">
         {% for quiz in quizzes %}
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-            <a href="/quiz/{{ quiz.id }}/review" style="text-decoration: none; color: inherit;">
+            <a href="{{ url_for('review_quiz', quiz_id=quiz.id) }}" style="text-decoration: none; color: inherit;">
                 <div class="card quiz-card h-100">
                     <div class="quiz-card-header">
 
@@ -44,7 +44,7 @@
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
             <div class="card quiz-card h-100">
                 <div class="quiz-card-header">
-                    <a href="/test/{{ test.id }}/review" style="text-decoration: none; color: inherit;"><h5
+                    <a href="{{ url_for('review_test', test_id=test.id) }}" style="text-decoration: none; color: inherit;"><h5
                             class="quiz-title">{{ test.title }}</h5></a>
                     <p class="quiz-description mb-0">{{ test.description }}</p>
                 </div>
@@ -63,13 +63,11 @@
 {% endif %}
 
 <div class="container mt-4">
-    <!-- APOD Секция -->
     <div class="row justify-content-center">
         <div class="col-lg-10">
 
             {% if apod %}
             <div class="card shadow-lg border-0">
-                <!-- Заголовок с датой -->
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h2 class="h4 mb-0">
                         🌌 Astronomy Picture of the Day
@@ -78,7 +76,6 @@
                 </div>
 
                 <div class="card-body p-0">
-                    <!-- Изображение или видео -->
                     {% if apod.media_type == 'image' %}
                     <div class="position-relative">
                         <img src="{{ apod.url }}"
@@ -124,7 +121,6 @@
             </div>
 
             {% else %}
-            <!-- Ошибка загрузки -->
             <div class="alert alert-warning text-center">
                 <h4>⚠️ Не удалось загрузить изображение дня</h4>
                 <p>Попробуйте обновить страницу позже или проверьте API ключ NASA.</p>

@@ -9,9 +9,9 @@
         <p class="quiz-description">{{ test.description }}</p>
 
         <div class="quiz-actions">
-            <a href="/test/{{ test.id }}/preview_game" class="btn btn-sm btn-success">Играть</a>
-            <a href="/test/{{ test.id }}/edit/test_info" class="btn btn-primary">✏️ Редактировать информацию о тесте</a>
-            <a href="/test/{{ test.id }}/delete" onclick="return confirm('Удалить тест безвозвратно?')"
+            <a href="/" class="btn btn-sm btn-success">Играть</a>
+            <a href="{{ url_for('edit_test_info', test_id=test.id) }}" class="btn btn-primary">✏️ Редактировать информацию о тесте</a>
+            <a href="{{ url_for('delete_test', test_id=test.id) }}" onclick="return confirm('Удалить тест безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить тест</a>
         </div>
     </header>
@@ -32,9 +32,9 @@
                 <h2 class="question-text">{{ cart.term }}</h2>
                 <h2 class="question-text">{{ cart.definition }}</h2>
                 <div class="question-actions">
-                    <a href="/test/{{ test.id }}/edit/cart/{{ cart.id }}" class="btn btn-sm btn-primary">✏️
+                    <a href="{{ url_for('edit_cart', test_id=test.id, cart_id=cart.id) }}" class="btn btn-sm btn-primary">✏️
                         Изменить</a>
-                    <a href="/cart/{{ cart.id }}/delete"
+                    <a href="{{ url_for('delete_cart', cart_id=cart.id) }}"
                        onclick="return confirm('Удалить карточку безвозвратно?')"
                        class="btn btn-danger">🗑️ Удалить</a>
                 </div>
