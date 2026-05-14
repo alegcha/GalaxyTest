@@ -22,8 +22,12 @@ from data.quizzes.answers import Answer
 from data.tests.tests import Test
 from data.tests.carts import Cart
 
+from data.api.constans import *
+from data.api.functions import get_apod_data
+
 from data import db_session
 import secrets
+import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
@@ -67,12 +71,22 @@ def load_user(user_id):
 @app.route("/")
 @app.route("/index")
 def index():
+    apod_date = session.get('apod_date')
+    apod_data = session.get('apod_data')
+
+    today = datetime.datetime.now().strftime('%Y-%m-%d')
+    if not apod_data or apod_date != today:
+        apod_data = get_apod_data()
+        if apod_data:
+            session['apod_data'] = apod_data
+            session['apod_date'] = today
+            session.modified = True
     if current_user.is_authenticated:
         db_sess = db_session.create_session()
         quizzes = db_sess.query(Quiz).filter(Quiz.user_id == current_user.id).all()
         tests = db_sess.query(Test).filter(Test.user_id == current_user.id).all()
-        return render_template("index.html", title="GalaxyTest", quizzes=quizzes, tests=tests)
-    return render_template("index.html", title="GalaxyTest")
+        return render_template("index.html", title="GalaxyTest", quizzes=quizzes, tests=tests, apod=apod_data)
+    return render_template("index.html", title="GalaxyTest", apod=apod_data)
 
 
 @app.route('/register', methods=['GET', 'POST'])

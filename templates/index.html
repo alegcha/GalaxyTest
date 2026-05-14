@@ -61,4 +61,78 @@
     </div>
 </div>
 {% endif %}
+
+<div class="container mt-4">
+    <!-- APOD Секция -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            {% if apod %}
+            <div class="card shadow-lg border-0">
+                <!-- Заголовок с датой -->
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">
+                        🌌 Astronomy Picture of the Day
+                    </h2>
+                    <span class="badge bg-primary">{{ apod.date }}</span>
+                </div>
+
+                <div class="card-body p-0">
+                    <!-- Изображение или видео -->
+                    {% if apod.media_type == 'image' %}
+                    <div class="position-relative">
+                        <img src="{{ apod.url }}"
+                             alt="{{ apod.title }}"
+                             class="img-fluid w-100"
+                             style="max-height: 70vh; object-fit: contain; background: #000;">
+                    </div>
+                    {% elif apod.media_type == 'video' %}
+                    <div class="ratio ratio-16x9">
+                        <iframe src="{{ apod.url }}"
+                                title="{{ apod.title }}"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    {% endif %}
+
+                    <!-- Информация о фото -->
+                    <div class="p-4">
+                        <h3 class="h4 mb-3">{{ apod.title }}</h3>
+
+                        {% if apod.copyright %}
+                        <p class="text-muted mb-3">
+                            <small>© {{ apod.copyright }}</small>
+                        </p>
+                        {% endif %}
+
+                        <!-- Кнопки действий -->
+                        <div class="mt-4 d-flex gap-2">
+                            <a href="{{ apod.url }}"
+                               target="_blank"
+                               class="btn btn-primary"
+                               download>
+                                📥 Скачать изображение
+                            </a>
+                            <a href="https://apod.nasa.gov/apod/astropix.html"
+                               target="_blank"
+                               class="btn btn-outline-secondary">
+                                🚀 На сайт NASA APOD
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Ошибка загрузки -->
+            <div class="alert alert-warning text-center">
+                <h4>⚠️ Не удалось загрузить изображение дня</h4>
+                <p>Попробуйте обновить страницу позже или проверьте API ключ NASA.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Обновить</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
 {% endblock %}
