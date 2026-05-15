@@ -38,3 +38,5 @@
 
 
 Презентация: https://www.figma.com/deck/4c1jllNwsmgotETQbwpmFp
+
+Деплой: https://galaxy-test--alegcha.replit.app
