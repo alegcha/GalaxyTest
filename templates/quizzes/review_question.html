@@ -1,21 +1,73 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ quiz.title }}</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
 
-<h2>Вопрос: {{ question.title }}</h2>
+            <!-- Заголовок квиза -->
+            <h1 class="h3 fw-bold mb-3 text-center">Квиз: {{ quiz.title }}</h1>
 
-<h3>Добавленные ответы:</h3>
-<ul>
-    {% for answer in answers %}
-    <li>{{ answer.text }} {% if answer.status %}✅ (Верный){% else %}❌ (Неверный){% endif %}</li>
-    {% else %}
-    <li><i>Пока нет ответов</i></li>
-    {% endfor %}
-</ul>
-<a href="{{ url_for('create_answer', quiz_id=quiz.id, quest_id=question.id) }}"
-                           class="btn btn-xs btn-primary">Добавить ответ️</a>
-<a href="{{ url_for('review_quiz', quiz_id=quiz.id) }}"
-                           class="btn btn-xs btn-primary">Завершить вопрос</a>
-{{ message }}
+            <!-- Основной блок вопроса -->
+            <article class="card question-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h2 class="h5 mb-0">Вопрос: {{ question.title }}</h2>
+                    <h3 class="h5 mb-0">Рекомендуется делать 1 верный вариант ответа, в ином случае баллы засчитаются,
+                        даже если выбраны не все правильные варианты.</h3>
+                    <div class="d-flex gap-2 flex-btn-group">
+                        <a href="{{ url_for('review_quiz', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">
+                            Завершить вопрос
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    {% if answers %}
+                    <div class="p-3">
+                        {% for answer in answers %}
+                        <div class="answer-row d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+
+                            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                <span class="fw-medium">{{ answer.text }}</span>
+                                {% if answer.status %}
+                                <span class="badge bg-success bg-opacity-10 text-success">Верный</span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger">Неверный</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex gap-2 flex-btn-group">
+                                <a href="{{ url_for('edit_answer', quiz_id=quiz.id, quest_id=question.id, answer_id=answer.id) }}"
+                                   class="btn btn-action btn-outline-secondary">
+                                    ✏️
+                                </a>
+                                <a href="{{ url_for('delete_answer', answer_id=answer.id) }}"
+                                   class="btn btn-action btn-outline-danger"
+                                   onclick="return confirm('Удалить ответ безвозвратно?')">
+                                    🗑️
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-chat-square-text"></i> Пока нет добавленных ответов
+                    </div>
+                    {% endif %}
+
+                    <div class="card-footer bg-white d-flex justify-content-end p-3 border-top">
+                        <a href="{{ url_for('create_answer', quiz_id=quiz.id, quest_id=question.id) }}"
+                           class="btn btn-primary">
+                            Добавить ответ
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            {{ message }}
+
+        </div>
+    </div>
+</div>
 {% endblock %}

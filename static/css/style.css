@@ -298,3 +298,19 @@ body {
     .answer-item { flex-wrap: wrap; }
     .answer-actions { width: 100%; justify-content: flex-end; margin-top: 0.3rem; }
 }
+
+
+# api apod
+.apod-description {
+    line-height: 1.8;
+    color: #333;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    transition: all 0.2s;
+}

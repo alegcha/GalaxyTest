@@ -6,9 +6,10 @@
 
 {% if current_user.is_authenticated %}
 <div>
-    <a href="{{ url_for('create_quiz') }}" class="btn btn-info">add quiz</a>
-    <a href="{{ url_for('create_test') }}" class="btn btn-info">add test</a>
+    <a href="{{ url_for('create_quiz') }}" class="btn btn-info">Добавить новый квиз</a>
+    <a href="{{ url_for('create_test') }}" class="btn btn-info">Добавить новый тест</a>
 </div>
+{% if quizzes %}
 <h3>Созданные квизы:</h3>
 <div class="container-fluid card-container">
     <div class="row g-4">
@@ -35,8 +36,8 @@
         {% endfor%}
     </div>
 </div>
-
-
+{% endif %}
+{% if tests %}
 <h3>Созданные тесты:</h3>
 <div class="container-fluid card-container">
     <div class="row g-4">
@@ -62,7 +63,7 @@
     </div>
 </div>
 {% endif %}
-
+{% endif %}
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -89,7 +90,7 @@
                              alt="APOD">
                         {% endif %}
                     </div>
-                {% if apod %}
+                    {% if apod %}
                     <!-- Информация о фото -->
                     <div class="p-4">
                         <h3 class="h4 mb-3">{{ apod.title }}</h3>

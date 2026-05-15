@@ -9,41 +9,51 @@
         <p class="quiz-description">{{ test.description }}</p>
 
         <div class="quiz-actions">
-            <a href="/" class="btn btn-sm btn-success">Играть</a>
-            <a href="{{ url_for('edit_test_info', test_id=test.id) }}" class="btn btn-primary">✏️ Редактировать информацию о тесте</a>
-            <a href="{{ url_for('delete_test', test_id=test.id) }}" onclick="return confirm('Удалить тест безвозвратно?')"
+
+            <a href="{{ url_for('edit_test_info', test_id=test.id) }}" class="btn btn-primary">✏️ Редактировать
+                информацию</a>
+            <a href="{{ url_for('delete_test', test_id=test.id) }}"
+               onclick="return confirm('Удалить тест безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить тест</a>
         </div>
     </header>
-    <!-- Создать карточку/сохранить тест -->
-    <form method="POST">
+
+    <!-- Управление -->
+    <form method="POST" class="d-flex gap-2 justify-content-center mb-4">
         {{ form.hidden_tag() }}
-        <p>{{ form.add_cart(type="submit", class="btn btn-primary") }}</p>
-        <p>{{ form.save_test(type="submit", class="btn btn-primary") }}</p>
+        {{ form.add_cart(class="btn btn-primary") }}
+        {{ form.save_test(class="btn btn-success") }}
     </form>
 
     <!-- Список карточек -->
     <section class="questions-list">
+        {% for cart in carts %}
+        <article class="question-block mb-4">
+            <div class="question-header flex-column align-items-start gap-2">
 
-        <!-- Карточка -->
-        <article class="question-block">
-            {% for cart in carts %}
-            <div class="question-header">
-                <h2 class="question-text">{{ cart.term }}</h2>
-                <h2 class="question-text">{{ cart.definition }}</h2>
-                <div class="question-actions">
-                    <a href="{{ url_for('edit_cart', test_id=test.id, cart_id=cart.id) }}" class="btn btn-sm btn-primary">✏️
-                        Изменить</a>
+                <div class="d-flex align-items-center gap-2 w-100">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Термин</span>
+                    <h2 class="question-text fw-bold mb-0">{{ cart.term }}</h2>
+                </div>
+
+                <!-- Определение -->
+                <div class="definition-content w-100 ps-4 mt-2">
+                    <p class="text-muted mb-0 fs-6 border-start border-3 border-primary-subtle ps-3">
+                        {{ cart.definition }}
+                    </p>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="question-actions mt-3">
+                    <a href="{{ url_for('edit_cart', test_id=test.id, cart_id=cart.id) }}"
+                       class="btn btn-sm btn-primary">✏️ Изменить</a>
                     <a href="{{ url_for('delete_cart', cart_id=cart.id) }}"
                        onclick="return confirm('Удалить карточку безвозвратно?')"
-                       class="btn btn-danger">🗑️ Удалить</a>
+                       class="btn btn-sm btn-danger">🗑️ Удалить</a>
                 </div>
             </div>
-
-            {% endfor %}
         </article>
-
-
+        {% endfor %}
     </section>
 </main>
 {% endblock %}

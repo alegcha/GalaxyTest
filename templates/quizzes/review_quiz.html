@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <main class="quiz-view">
-
     <!-- Шапка квиза -->
     <header class="quiz-header">
         <h1 class="quiz-title">{{ quiz.title }}</h1>
@@ -11,66 +9,74 @@
 
         <div class="quiz-actions">
             <a href="{{ url_for('preview_quiz_game', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">Играть</a>
-            <a href="{{ url_for('edit_quiz_info', quiz_id=quiz.id) }}" class="btn btn-primary">✏️ Редактировать
-                информацию о квизе</a>
+            <a href="{{ url_for('edit_quiz_info', quiz_id=quiz.id) }}" class="btn btn-primary">✏️ Редактировать информацию</a>
             <a href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}"
                onclick="return confirm('Удалить квиз безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить квиз</a>
         </div>
     </header>
-    <!-- Создать вопрос/сохранить квиз -->
-    <form method="POST">
+
+    <!-- Кнопки управления -->
+    <form method="POST" class="d-flex gap-2 justify-content-center mb-4">
         {{ form.hidden_tag() }}
-        <p>{{ form.add_question(type="submit", class="btn btn-primary") }}</p>
-        <p>{{ form.save_quiz(type="submit", class="btn btn-primary") }}</p>
+        {{ form.add_question(class="btn btn-primary") }}
+        {{ form.save_quiz(class="btn btn-success") }}
     </form>
 
     <!-- Список вопросов -->
     <section class="questions-list">
+        {% for q_tuple in data %}
+        {% set question = q_tuple[0] %}
+        {% set answers = q_tuple[1] %}
 
-        <!-- Вопрос + Ответы -->
-        <article class="question-block">
-            {% for question in data %}
+        <article class="question-block mb-4">
             <div class="question-header">
-                <h2 class="question-text">{{ question[0].content }}</h2>
+                <h2 class="question-text">{{ question.content }}</h2>
                 <div class="question-actions">
-                    <a href="{{ url_for('edit_question', quiz_id=quiz.id, quest_id=question[0].id) }}"
-                       class="btn btn-sm btn-primary">✏️
-                        Изменить</a>
-                    <a href="{{ url_for('delete_question', quest_id=question[0].id) }}"
+                    <a href="{{ url_for('edit_question', quiz_id=quiz.id, quest_id=question.id) }}" class="btn btn-sm btn-primary">✏️ Изменить</a>
+                    <a href="{{ url_for('delete_question', quest_id=question.id) }}"
                        onclick="return confirm('Удалить вопрос безвозвратно?')"
-                       class="btn btn-danger">🗑️ Удалить</a>
-                    <a href="{{ url_for('create_answer', quiz_id=quiz.id, quest_id=question[0].id) }}"
-                       class="btn btn-sm btn-primary">Добавить новый ответ</a>
+                       class="btn btn-sm btn-danger">🗑️ Удалить</a>
                 </div>
             </div>
 
+            <!-- Контейнер ответов -->
             <div class="answers-list">
-                <div class="answer-item">
-                    {% for answer in question[1] %}
-                    <span class="answer-text">{{ answer.text }}</span>
-                    {% if answer.status %}
-                    <span class="answer-badge correct">✅ Верный</span>
-                    {% else %}
-                    <span class="answer-badge incorrect">❌ Неверный</span>
-                    {% endif %}
-                    <div class="answer-actions">
-                        <a href="{{ url_for('edit_answer', quiz_id=quiz.id, quest_id=question[0].id, answer_id=answer.id) }}"
-                           class="btn btn-xs btn-primary">✏️</a>
-                        <a href="{{ url_for('delete_answer', answer_id=answer.id) }}"
-                           onclick="return confirm('Удалить вопрос безвозвратно?')" class="btn btn-danger">🗑️</a>
+                {% if answers %}
+                    {% for answer in answers %}
+                    <div class="answer-item d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 p-2" 
+                         style="background: var(--bs-light-bg-subtle, #f8f9fa); border-radius: 8px;">
+                        
+                        <div class="d-flex align-items-center gap-2 flex-grow-1">
+                            <span class="answer-text">{{ answer.text }}</span>
+                            {% if answer.status %}
+                                <span class="answer-badge correct">✅ Верный</span>
+                            {% else %}
+                                <span class="answer-badge incorrect">❌ Неверный</span>
+                            {% endif %}
+                        </div>
 
+                        <div class="answer-actions d-flex gap-2">
+                            <a href="{{ url_for('edit_answer', quiz_id=quiz.id, quest_id=question.id, answer_id=answer.id) }}" 
+                               class="btn btn-xs btn-primary">✏️</a>
+                            <a href="{{ url_for('delete_answer', answer_id=answer.id) }}"
+                               onclick="return confirm('Удалить ответ безвозвратно?')"
+                               class="btn btn-xs btn-danger">🗑️</a>
+                        </div>
                     </div>
                     {% endfor %}
+                {% else %}
+                    <p class="text-muted fst-italic ps-2">Пока нет добавленных ответов</p>
+                {% endif %}
+
+                <!-- Кнопка добавления ответа внутри блока вопроса -->
+                <div class="mt-3 text-end">
+                    <a href="{{ url_for('create_answer', quiz_id=quiz.id, quest_id=question.id) }}" 
+                       class="btn btn-sm btn-outline-primary">➕ Добавить ответ</a>
                 </div>
-
             </div>
-
-            {% endfor %}
         </article>
-
-
+        {% endfor %}
     </section>
 </main>
-
 {% endblock %}

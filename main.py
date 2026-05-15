@@ -368,7 +368,7 @@ def play_question(quiz_id, quest_index):
         return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=session['question_index']))
 
     #
-    if form.validate_on_submit() and form.submit_check:
+    if form.validate_on_submit() and form.submit_check.data:
         selected_id = int(form.choice.data)
         session['selected_answer_id'] = selected_id
         session['question_checked'] = True  # Включаем режим просмотра результата
@@ -384,7 +384,7 @@ def play_question(quiz_id, quest_index):
         # Важно: Redirect нужен, чтобы сбросить POST-данные и позволить странице отрисовать состояние "Checked"
         return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=quest_index))
 
-    if form.submit_next and session.get('question_checked'):
+    if form.submit_next.data and session.get('question_checked'):
         session['question_index'] += 1
         session['question_checked'] = False
         session['selected_answer_id'] = None
