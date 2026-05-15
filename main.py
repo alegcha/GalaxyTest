@@ -179,12 +179,14 @@ def review_quiz(quiz_id):
 def edit_quiz_info(quiz_id):
     form = QuizForm()
     if request.method == 'GET':
-        quiz = get_object_or_404(Quiz, quiz_id)
+        # quiz = get_object_or_404(Quiz, quiz_id)
+        db_sess = db_session.create_session()
+        quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
         form.title.data = quiz.title
         form.description.data = quiz.description
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        quiz = get_object_or_404(Quiz, quiz_id)
+        quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
         quiz.title = form.title.data
         quiz.description = form.description.data
         db_sess.commit()
@@ -291,7 +293,9 @@ def delete_answer(answer_id):
 @app.route('/quiz/<int:quiz_id>/game/preview')
 @login_required
 def preview_quiz_game(quiz_id):
-    quiz = get_object_or_404(Quiz, quiz_id)
+    # quiz = get_object_or_404(Quiz, quiz_id)
+    db_sess = db_session.create_session()
+    quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
     form = StartQuizForm()
     return render_template('games/preview_game.html', game=quiz, form=form, is_quiz=True)
 
@@ -551,6 +555,6 @@ def logout():
 
 if __name__ == '__main__':
     db_session.global_init("db/galaxy_test.db")
-    # app.run(host="127.0.0.1", port=8081, debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="127.0.0.1", port=8081, debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
