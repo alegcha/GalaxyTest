@@ -11,8 +11,10 @@
 
         <div class="quiz-actions">
             <a href="{{ url_for('preview_quiz_game', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">Играть</a>
-            <a href="{{ url_for('edit_quiz_info', quiz_id=quiz.id) }}" class="btn btn-primary">✏️ Редактировать информацию о квизе</a>
-            <a href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}" onclick="return confirm('Удалить квиз безвозвратно?')"
+            <a href="{{ url_for('edit_quiz_info', quiz_id=quiz.id) }}" class="btn btn-primary">✏️ Редактировать
+                информацию о квизе</a>
+            <a href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}"
+               onclick="return confirm('Удалить квиз безвозвратно?')"
                class="btn btn-danger">🗑️ Удалить квиз</a>
         </div>
     </header>
@@ -32,11 +34,14 @@
             <div class="question-header">
                 <h2 class="question-text">{{ question[0].content }}</h2>
                 <div class="question-actions">
-                    <a href="{{ url_for('edit_question', quiz_id=quiz.id, quest_id=question[0].id) }}" class="btn btn-sm btn-primary">✏️
+                    <a href="{{ url_for('edit_question', quiz_id=quiz.id, quest_id=question[0].id) }}"
+                       class="btn btn-sm btn-primary">✏️
                         Изменить</a>
                     <a href="{{ url_for('delete_question', quest_id=question[0].id) }}"
                        onclick="return confirm('Удалить вопрос безвозвратно?')"
                        class="btn btn-danger">🗑️ Удалить</a>
+                    <a href="{{ url_for('create_answer', quiz_id=quiz.id, quest_id=question[0].id) }}"
+                       class="btn btn-sm btn-primary">Добавить новый ответ</a>
                 </div>
             </div>
 

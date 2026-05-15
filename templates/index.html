@@ -44,7 +44,8 @@
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
             <div class="card quiz-card h-100">
                 <div class="quiz-card-header">
-                    <a href="{{ url_for('review_test', test_id=test.id) }}" style="text-decoration: none; color: inherit;"><h5
+                    <a href="{{ url_for('review_test', test_id=test.id) }}"
+                       style="text-decoration: none; color: inherit;"><h5
                             class="quiz-title">{{ test.title }}</h5></a>
                     <p class="quiz-description mb-0">{{ test.description }}</p>
                 </div>
@@ -66,32 +67,29 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
 
-            {% if apod %}
+
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h2 class="h4 mb-0">
                         🌌 Astronomy Picture of the Day
                     </h2>
-                    <span class="badge bg-primary">{{ apod.date }}</span>
+                    <span class="badge bg-primary">{{ date }}</span>
                 </div>
 
                 <div class="card-body p-0">
-                    {% if apod.media_type == 'image' %}
-                    <div class="position-relative">
-                        <img src="{{ apod.url }}"
-                             alt="{{ apod.title }}"
-                             class="img-fluid w-100"
-                             style="max-height: 70vh; object-fit: contain; background: #000;">
+                    <div class="card-body p-0 text-center bg-dark">
+                        {% if image_url.endswith('.mp4') %}
+                        <video controls class="img-fluid w-100" style="max-height: 80vh;">
+                            <source src="{{ image_url }}" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                        {% else %}
+                        <img src="{{ image_url }}" class="img-fluid w-100"
+                             style="max-height: 80vh; object-fit: contain;"
+                             alt="APOD">
+                        {% endif %}
                     </div>
-                    {% elif apod.media_type == 'video' %}
-                    <div class="ratio ratio-16x9">
-                        <iframe src="{{ apod.url }}"
-                                title="{{ apod.title }}"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                    {% endif %}
-
+                {% if apod %}
                     <!-- Информация о фото -->
                     <div class="p-4">
                         <h3 class="h4 mb-3">{{ apod.title }}</h3>
@@ -122,8 +120,8 @@
 
             {% else %}
             <div class="alert alert-warning text-center">
-                <h4>⚠️ Не удалось загрузить изображение дня</h4>
-                <p>Попробуйте обновить страницу позже или проверьте API ключ NASA.</p>
+                <h4>⚠️ Не удалось загрузить данные о картинке дня</h4>
+                <p>Попробуйте обновить страницу позже.</p>
                 <a href="{{ url_for('index') }}" class="btn btn-primary">Обновить</a>
             </div>
             {% endif %}

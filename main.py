@@ -23,11 +23,11 @@ from data.tests.tests import Test
 from data.tests.carts import Cart
 
 from data.api.constans import *
-from data.api.functions import get_apod_data
+from data.api.functions import get_apod_filename, get_apod_data
 
 from data import db_session
 import secrets
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
@@ -71,22 +71,30 @@ def load_user(user_id):
 @app.route("/")
 @app.route("/index")
 def index():
+    local_filename = get_apod_filename()
+    image_url = None
+    if local_filename:
+        image_url = url_for('static', filename=f'api/{local_filename}')
+    # Проверяем, есть ли данные в сессии (кэшируем на 1 день)
     apod_date = session.get('apod_date')
     apod_data = session.get('apod_data')
 
-    today = datetime.datetime.now().strftime('%Y-%m-%d')
+    # Если данных нет или они за вчерашний день - обновляем
+    today = datetime.now().strftime('%Y-%m-%d')
     if not apod_data or apod_date != today:
         apod_data = get_apod_data()
         if apod_data:
             session['apod_data'] = apod_data
             session['apod_date'] = today
             session.modified = True
+
     if current_user.is_authenticated:
         db_sess = db_session.create_session()
         quizzes = db_sess.query(Quiz).filter(Quiz.user_id == current_user.id).all()
         tests = db_sess.query(Test).filter(Test.user_id == current_user.id).all()
-        return render_template("index.html", title="GalaxyTest", quizzes=quizzes, tests=tests, apod=apod_data)
-    return render_template("index.html", title="GalaxyTest", apod=apod_data)
+        return render_template("index.html", title="GalaxyTest", quizzes=quizzes, tests=tests, image_url=image_url,
+                               apod=apod_data, day=today)
+    return render_template("index.html", title="GalaxyTest", image_url=image_url, apod=apod_data, date=today)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -351,14 +359,20 @@ def play_question(quiz_id, quest_index):
 
     # Динамическое заполнение вариантов ответа
     answers = db_sess.query(Answer).filter(Answer.quest_id == current_question.id).all()
-    form.choice.choices = [(answer.id, answer.text) for answer in answers]
+    if answers:
+        form.choice.choices = [(answer.id, answer.text) for answer in answers]
+    else:
+        session['question_index'] += 1
+        session['question_checked'] = False
+        session['selected_answer_id'] = None
+        return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=session['question_index']))
 
     #
     if form.validate_on_submit() and form.submit_check:
         selected_id = int(form.choice.data)
         session['selected_answer_id'] = selected_id
         session['question_checked'] = True  # Включаем режим просмотра результата
-        # session.modified = True
+        session.modified = True
 
         # Подсчет очков (если правильно)
         # answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
@@ -376,8 +390,7 @@ def play_question(quiz_id, quest_index):
         session['selected_answer_id'] = None
         return redirect(url_for('play_question', quiz_id=quiz_id, quest_index=session['question_index']))
 
-    # --- РЕНДЕРИНГ ---
-    # Нам нужно знать, показывать ли правильные/неправильные ответы
+    # показывать ли правильные/неправильные ответы
     is_checked = session.get('question_checked', False)
     selected_id = session.get('selected_answer_id')
 

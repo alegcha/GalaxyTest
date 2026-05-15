@@ -25,7 +25,7 @@
 
                     <div class="d-grid gap-2 col-8 mx-auto">
                         {% if is_quiz %}
-                        <a href="{{ url_for('review_quiz, quiz_id=game.id') }}" class="btn btn-outline-secondary">К просмотру квиза</a>
+                        <a href="{{ url_for('review_quiz', quiz_id=game.id) }}" class="btn btn-outline-secondary">К просмотру квиза</a>
                         <a href="{{ url_for('preview_quiz_game', quiz_id=game.id) }}" class="btn btn-primary">Пройти снова</a>
                         {% else %}
                         <a href="{{ url_for('review_test, test_id=game.id') }}" class="btn btn-outline-secondary">К просмотру теста</a>
