@@ -10,7 +10,6 @@ from forms.quizzes.creation.answer_form import AnswerForm
 from forms.quizzes.creation.quiz_review_form import QuizReviewForm
 from forms.quizzes.game.start_game import StartQuizForm
 from forms.quizzes.game.question_with_answers_form import QuestionAnswerForm
-from forms.quizzes.creation.question_review_form import QuestionReviewForm
 from forms.tests.test_form import TestForm
 from forms.tests.cart_form import CartForm
 from forms.tests.test_review_form import TestReviewForm
@@ -37,31 +36,6 @@ login_manager.init_app(app)
 
 
 # вспомогательные функции
-
-def get_object_or_404(object_class, object_id):
-    db_sess = db_session.create_session()
-    item = db_sess.query(object_class).filter(object_class.id == object_id).first()
-    if item:
-        return item
-    else:
-        abort(404)
-
-
-def get_objects_or_404(object_class, mother_object_id):
-    db_sess = db_session.create_session()
-    if isinstance(object_class, Quiz) or isinstance(object_class, Test):
-        items = db_sess.query(object_class).filter(object_class.user_id == mother_object_id).all()
-    elif isinstance(object_class, Question):
-        items = db_sess.query(object_class).filter(object_class.quiz_id == mother_object_id).all()
-    elif isinstance(object_class, Answer):
-        items = db_sess.query(object_class).filter(object_class.quest_id == mother_object_id).all()
-    elif isinstance(object_class, Cart):
-        items = db_sess.query(object_class).filter(object_class.test_id == mother_object_id).all()
-    else:
-        return abort(404)
-    return items
-
-
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -223,7 +197,6 @@ def edit_quiz_info(quiz_id):
 @login_required
 def delete_quiz(quiz_id):
     db_sess = db_session.create_session()
-    # quiz = get_object_or_404(Quiz, quiz_id)
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
     questions = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()
     for question in questions:
@@ -273,7 +246,6 @@ def delete_question(quest_id):
         db_sess.commit()
     else:
         abort(404)
-    # return redirect(f'/quiz/{quiz_id}/review')
     return redirect(request.referrer or url_for('index'))
 
 
@@ -319,9 +291,6 @@ def delete_answer(answer_id):
 @app.route('/quiz/<int:quiz_id>/game/preview')
 @login_required
 def preview_quiz_game(quiz_id):
-    #     db_sess = db_session.create_session()
-    #     game = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
-    #     return render_template('games/preview_game.html', game=game, game_type='quiz')
     quiz = get_object_or_404(Quiz, quiz_id)
     form = StartQuizForm()
     return render_template('games/preview_game.html', game=quiz, form=form, is_quiz=True)
@@ -347,8 +316,6 @@ def play_question(quiz_id, quest_index):
     if session.get('playing_quiz_id') != quiz_id:
         return redirect(url_for('preview_quiz_game', quiz_id=quiz_id))
     db_sess = db_session.create_session()
-    # quiz = get_object_or_404(Quiz, quiz_id)
-    # questions = list(get_objects_or_404(Question, quiz_id))
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()  # вынести в роут со стартом
     questions = db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()
     if quest_index >= len(questions):
@@ -396,7 +363,6 @@ def play_question(quiz_id, quest_index):
 
     # Подготовка данных для подсветки в шаблоне
     answers_data = []
-    # answers = db_sess.query(Answer).filter(Answer.id == selected_id).all()
     for answer in answers:
         state = 'default'
         if is_checked:
@@ -419,34 +385,15 @@ def play_question(quiz_id, quest_index):
                            form=form)
 
 
-# @app.route('/quiz/<int:quiz_id>/play/results')
-# def play_results(quiz_id):
-#     if session.get('playing_quiz_id') != quiz_id:
-#         return redirect(url_for('index'))
-#
-#     quiz = get_quiz_or_404(quiz_id)
-#     score = session.get('score', 0)
-#     total = len(quiz.questions)
-#
-#     # Очистка сессии игры
-#     session.pop('playing_quiz_id', None)
-#     session.pop('question_index', None)
-#     session.pop('score', None)
-#
-#     return render_template('play_results.html', quiz=quiz, score=score, total=total)
-
-
 @app.route('/quiz/<int:quiz_id>/game/results')
 @login_required
 def quiz_results(quiz_id):
     if session.get('playing_quiz_id') != quiz_id:
         return redirect(url_for('index'))
 
-    # quiz = get_object_or_404(Quiz, quiz_id)
     db_sess = db_session.create_session()
     quiz = db_sess.query(Quiz).filter(Quiz.id == quiz_id).first()
     score = session.get('score', 0)
-    # total = len(get_objects_or_404(Question, quiz_id)) * 10
     total = len(db_sess.query(Question).filter(Question.quiz_id == quiz_id).all()) * 10
 
     # Очистка сессии игры
@@ -604,4 +551,6 @@ def logout():
 
 if __name__ == '__main__':
     db_session.global_init("db/galaxy_test.db")
-    app.run(host="127.0.0.1", port=8081, debug=True)
+    # app.run(host="127.0.0.1", port=8081, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
